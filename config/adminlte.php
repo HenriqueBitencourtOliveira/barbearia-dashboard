@@ -309,7 +309,7 @@ return [
         ['header' => 'Navegação Principal'],
         [
             'text' => 'Dashboard',
-            'url' => 'admin/settings',
+            'url' => '/dashboard',
             'icon' => 'fas fa-fw fa-chart-bar',
         ],
         [
