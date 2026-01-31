@@ -10,15 +10,24 @@ class VendaController extends Controller
 {
     public function index(Request $request)
     {
-        //Pega o filtro da URL (se existir)
-        $barberSelect = $request->input('barber');
 
         // começo a query pegando o ultimo registro de venda
         $query = Venda::latest('sold_at');      
-       
-        // verifico se foi selecionada algum barbeiro se sim adiciono o filtro na query
-        if($barberSelect){
-            $query->where('barber', $barberSelect);
+
+        if ($request->filled('barber')) {
+            $query->where('barber', $request->input('barber'));
+        }
+
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->input('payment_method'));
+        }
+
+        if ($request->filled('date')) {
+            $query->whereDate('sold_at', $request->input('date'));
+        }
+
+        if ($request->filled('description')) {
+            $query->where('description', 'like', '%' . $request->input('description') . '%');
         }        
 
         // pego somente 10 registros por paginas e mantenho o filtro na paginação
@@ -32,7 +41,7 @@ class VendaController extends Controller
                             ->pluck('barber');
 
 
-        return view('vendas.index', compact('sales', 'barbers', 'barberSelect'));
+        return view('vendas.index', compact('sales', 'barbers'));
     }
     public function store(Request $request)
     {

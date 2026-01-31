@@ -1,0 +1,291 @@
+/* Fundo geral escuro e moderno */
+        .content-wrapper {
+            background: linear-gradient(135deg, #0c1324 0%, #111828 50%, #0f1419 100%) !important;
+        }
+
+        /* Cards com estilo premium */
+        .card {
+            background-color: #111828 !important;
+            border: 1px solid #1e293b !important;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-gray-dark {
+            background-color: #131c31 !important;
+        }
+
+        .card-header {
+            background-color: #0f172a !important;
+            border-bottom: 1px solid #1e293b !important;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .card-title {
+            color: #e2e8f0 !important;
+            font-weight: 600;
+        }
+
+        /* Labels e textos */
+        label {
+            color: #cbd5e1 !important;
+            font-weight: 500;
+        }
+
+        /* Inputs e selects */
+        .form-control {
+            background-color: #1e293b !important;
+            border: 1px solid #334155 !important;
+            color: #e2e8f0 !important;
+        }
+
+        .form-control:focus {
+            background-color: #1e293b !important;
+            border-color: #7c3aed !important;
+            color: #e2e8f0 !important;
+            box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25);
+        }
+
+        /* Botões */
+        .btn-default {
+            background-color: #334155 !important;
+            border-color: #475569 !important;
+            color: #e2e8f0 !important;
+        }
+
+        .btn-default:hover {
+            background-color: #475569 !important;
+            border-color: #64748b !important;
+        }
+
+        .btn-tool {
+            color: #94a3b8 !important;
+        }
+
+        .btn-tool:hover {
+            color: #cbd5e1 !important;
+        }
+
+        /* Heading */
+        h1 {
+            color: #e2e8f0 !important;
+        }
+
+        /* --- 2. PERSONALIZAÇÃO DA NAVBAR (Barra Superior) --- */
+    .main-header {
+        background-color: #0b1120 !important; /* Mesma cor dos Cards */
+        border-bottom: 1px solid #2b3553 !important;
+    }
+    
+    /* Cor dos ícones e links da navbar */
+    .main-header .navbar-nav .nav-link {
+        color: #adb5bd !important;
+    }
+    .main-header .navbar-nav .nav-link:hover {
+        color: #fff !important;
+    }
+
+    /* --- 3. PERSONALIZAÇÃO DA SIDEBAR (Menu Lateral) --- */
+    .main-sidebar {
+        background-color: #0b1120 !important; /* Mesma cor do fundo da página para "sumir" */
+        /* OU use #111c44 se quiser que ela destaque igual aos cards */
+    }
+
+    /* Logo da Barbearia (Canto superior esquerdo) */
+    .brand-link {
+        background-color: #0b1120 !important;
+        border-bottom: 1px solid #2b3553 !important;
+    }
+    .brand-link .brand-text {
+        color: #fff !important;
+    }
+
+    /* --- 4. ITENS DO MENU --- */
+    /* Item de menu normal */
+    .nav-sidebar .nav-item .nav-link {
+        color: #adb5bd;
+    }
+    .nav-sidebar .nav-item .nav-link:hover {
+        background-color: rgba(255,255,255,0.1) !important;
+        color: #fff !important;
+    }
+
+    /* ITEM ATIVO (Onde a mágica acontece) */
+    /* Vamos usar o Roxo Neon ou o Azul Neon do seu gráfico */
+    .nav-sidebar .nav-item > .nav-link.active {
+        background-color: #7c3aed !important; /* Roxo do seu Gráfico */
+        color: #fff !important;
+        box-shadow: 0 0 10px rgba(124, 58, 237, 0.5); /* Brilho Neon */
+    }
+
+    /* Sub-menus */
+    .nav-treeview > .nav-item > .nav-link.active {
+        background-color: rgba(124, 58, 237, 0.3) !important;
+        color: #fff !important;
+    }
+
+    /* --- 5. TABELAS --- */
+    .table {
+        color: #cbd5e1 !important;
+    }
+    
+    .table thead th {
+        color: #e2e8f0 !important;
+        background-color: #0f172a !important;
+        border-color: #334155 !important;
+        font-weight: 600;
+    }
+
+    .table tbody td {
+        color: #cbd5e1 !important;
+        border-color: #334155 !important;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(124, 58, 237, 0.15) !important;
+    }
+
+    /* --- 6. PAGINAÇÃO --- */
+    .pagination {
+        gap: 4px;
+    }
+
+    .pagination .page-link {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+        color: #cbd5e1 !important;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+    .pagination .page-link:hover {
+        background-color: #334155 !important;
+        color: #e2e8f0 !important;
+        border-color: #475569 !important;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #7c3aed !important;
+        border-color: #7c3aed !important;
+        color: #fff !important;
+        box-shadow: 0 0 8px rgba(124, 58, 237, 0.4);
+    }
+
+    .pagination .page-item.disabled .page-link {
+        background-color: #0f172a !important;
+        color: #64748b !important;
+        border-color: #334155 !important;
+        cursor: not-allowed;
+    }
+
+    /* --- 7. BADGES --- */
+    .badge {
+        padding: 6px 12px !important;
+        border-radius: 4px;
+        font-weight: 600;
+    }
+
+    .badge-success {
+        background-color: #10b981 !important;
+        color: #fff !important;
+    }
+
+    .badge-warning {
+        background-color: #f59e0b !important;
+        color: #fff !important;
+    }
+
+    .badge-danger {
+        background-color: #ef4444 !important;
+        color: #fff !important;
+    }
+
+    /* --- 8. BOTÕES PEQUENOS NA TABELA --- */
+    .btn-xs {
+        padding: 4px 8px !important;
+        font-size: 12px !important;
+        border-radius: 4px;
+    }
+
+    .btn-secondary {
+        background-color: #475569 !important;
+        border-color: #64748b !important;
+        color: #e2e8f0 !important;
+    }
+
+    .btn-secondary:hover {
+        background-color: #64748b !important;
+        border-color: #94a3b8 !important;
+        color: #fff !important;
+    }
+
+    .btn-primary {
+        background-color: #7c3aed !important;
+        border-color: #7c3aed !important;
+        color: #fff !important;
+    }
+
+    .btn-primary:hover {
+        background-color: #6d28d9 !important;
+        border-color: #6d28d9 !important;
+    }
+
+    .btn-success {
+        background-color: #10b981 !important;
+        border-color: #10b981 !important;
+        color: #fff !important;
+    }
+
+    .btn-success:hover {
+        background-color: #059669 !important;
+        border-color: #059669 !important;
+    }
+
+    /* --- 9. MODALS --- */
+    .modal-content {
+        background-color: #111828 !important;
+        border: 1px solid #1e293b !important;
+        border-radius: 8px;
+    }
+
+    .modal-header {
+        background-color: #0f172a !important;
+        border-bottom: 1px solid #1e293b !important;
+        color: #e2e8f0 !important;
+    }
+
+    .modal-body {
+        background-color: #111828 !important;
+        color: #cbd5e1 !important;
+    }
+
+    .modal-footer {
+        background-color: #0f172a !important;
+        border-top: 1px solid #1e293b !important;
+    }
+
+    .close {
+        color: #cbd5e1 !important;
+    }
+
+    .close:hover {
+        color: #fff !important;
+    }
+
+    /* --- 10. INPUTS NOS MODAIS --- */
+    .modal-body .form-control {
+        background-color: #1e293b !important;
+        border: 1px solid #334155 !important;
+        color: #e2e8f0 !important;
+    }
+
+    .modal-body .form-control:focus {
+        background-color: #1e293b !important;
+        border-color: #7c3aed !important;
+        color: #e2e8f0 !important;
+        box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25);
+    }
+
+    .modal-body label {
+        color: #cbd5e1 !important;
+    }

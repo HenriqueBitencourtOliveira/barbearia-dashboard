@@ -14,8 +14,14 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        var weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
-        
+        var weeklyCanvas = document.getElementById('weeklyChart');
+        var weeklyCtx = weeklyCanvas.getContext('2d');
+
+        // Gradient vertical usando as cores do tema (roxo -> azul)
+        var gradient = weeklyCtx.createLinearGradient(0, 0, 0, 250);
+        gradient.addColorStop(0, 'rgba(124,58,237,0.95)'); // #7c3aed
+        gradient.addColorStop(1, 'rgba(14,165,233,0.9)');   // #0ea5e9
+
         new Chart(weeklyCtx, {
             type: 'bar',
             data: {
@@ -23,16 +29,62 @@
                 labels: {!! json_encode($dataWeekly['labels']) !!},
                 datasets: [{
                     label: 'Faturamento (R$)',
-                    backgroundColor: '#343a40', 
-                    borderColor: 'rgba(23, 162, 184, 1)',
+                    backgroundColor: gradient,
+                    borderColor: 'rgba(124,58,237,1)',
+                    borderWidth: 0,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                    maxBarThickness: 36,
                     data: {!! json_encode($dataWeekly['data']) !!}
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                plugins: {
+                    legend: { 
+                        labels: { 
+                            color: '#e2e8f0',
+                            font: {
+                                size: 13,
+                                weight: 'bold'
+                            }
+                        } 
+                    },
+                    tooltip: { 
+                        backgroundColor: '#0f172a', 
+                        titleColor: '#e2e8f0', 
+                        bodyColor: '#cbd5e1',
+                        titleFont: {
+                            size: 13,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 14
+                        }
+                    }
+                },
                 scales: {
-                    y: { beginAtZero: true }
+                    x: {
+                        ticks: { 
+                            color: '#cbd5e1',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        grid: { display: false }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: { 
+                            color: '#cbd5e1',
+                            font: {
+                                size: 12
+                            }
+                        },
+                        grid: { color: 'rgba(30,41,59,0.5)' }
+                    }
                 }
             }
         });

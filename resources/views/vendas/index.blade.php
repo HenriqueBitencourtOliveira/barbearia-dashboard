@@ -7,6 +7,9 @@
 @stop
 
 @section('content')
+
+@include('vendas.components.filter')
+
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Histórico</h3>
@@ -17,24 +20,6 @@
                 </button>
             </div>
         </div>
-        <form method="GET" action="{{ route('vendas.index') }}">
-            <div class="row ml-2">
-                <div class="col-md-1">
-                    <div class="form-group">
-                        <label>Barbeiro</label>
-                        <select name="barber" class="form-control" onchange="this.form.submit()">
-                            <option value="">Todos</option>
-                            @foreach ($barbers as $barber)
-                                <option value="{{ $barber }}" {{ $barberSelect == $barber ? 'selected' : '' }}>
-                                    {{ $barber }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </form>
-
         <div class="card-body table-responsive p-0">
             <table class="table table-hover text-nowrap">
                 <thead>
@@ -217,7 +202,7 @@
 @stop
 
 @section('css')
-    {{-- Se precisar de CSS extra --}}
+
 @stop
 
 @section('js')

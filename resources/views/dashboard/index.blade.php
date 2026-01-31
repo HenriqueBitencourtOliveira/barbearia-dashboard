@@ -4,13 +4,7 @@
 
 @section('content_header')
     <h1>Dashboard</h1>
-@stop
-
-@section('content')
-    <div class="row">
-        <div class="col-md-12">
-
-            <form method="GET" action="{{ route('dashboard.index') }}">
+    <form method="GET" action="{{ route('dashboard.index') }}">
                 <div class="row">
 
 
@@ -36,6 +30,13 @@
 
                 </div>
             </form>
+@stop
+
+@section('content')
+    <div class="row">
+        <div class="col-md-12">
+            
+
 
             <div class="card card-gray-dark">
                 <div class="card-header">
@@ -73,70 +74,132 @@
 @stop
 
 @section('css')
-    {{-- CSS Adicional se precisar --}}
+    
 @stop
 
+
 @section('js')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <script>
-        $(function() {
-            // --- DADOS DO GRÁFICO (Aqui colocaremos os dados do Banco depois) ---
-            var areaChartData = {
-                labels: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto',
-                    'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-                ],
-                datasets: [{
-                        label: 'Ano Atual ({{ date('Y') }})',
-                        backgroundColor: '#ED3237', // Azul
-                        borderColor: '#b08d55',
-                        pointRadius: false,
-                        pointColor: '#3b8bba',
-                        pointStrokeColor: 'rgba(60,141,188,1)',
-                        pointHighlightFill: '#fff',
-                        pointHighlightStroke: 'rgba(60,141,188,1)',
-                        data: {!! json_encode($currentSales) !!} // <--- DADOS FAKE ANO ATUAL
+<script>
+    $(function() {
+        // 1. Pegamos o contexto do Canvas para criar o Degradê (Gradient)
+        var canvas = $('#barChart').get(0);
+        var ctx = canvas.getContext('2d');
+
+        // --- CRIANDO OS DEGRADÊS (O segredo do visual) ---
+        
+        // Degradê Roxo (Ano Atual)
+        var gradientCurrent = ctx.createLinearGradient(0, 0, 0, 400);
+        gradientCurrent.addColorStop(0, 'rgba(124, 58, 237, 0.5)'); // Roxo forte no topo
+        gradientCurrent.addColorStop(1, 'rgba(124, 58, 237, 0.0)'); // Transparente em baixo
+
+        // Degradê Azul (Ano Anterior)
+        var gradientPrev = ctx.createLinearGradient(0, 0, 0, 400);
+        gradientPrev.addColorStop(0, 'rgba(14, 165, 233, 0.3)'); // Azul médio
+        gradientPrev.addColorStop(1, 'rgba(14, 165, 233, 0.0)'); // Transparente
+
+        // 2. Configuração dos Dados
+        var areaChartData = {
+            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+            datasets: [
+                {
+                    label: 'Ano Atual ({{ date("Y") }})',
+                    data: {!! json_encode($currentSales) !!}, // Seus dados do Laravel
+                    
+                    // Estilo da Linha Roxa
+                    borderColor: '#7c3aed', // Cor da linha sólida
+                    backgroundColor: gradientCurrent, // O degradê que criamos acima
+                    borderWidth: 3,
+                    
+                    // Configurações para ficar igual à imagem
+                    fill: true,          // Preenche embaixo da linha
+                    tension: 0.4,        // Cria a curva suave (Wavy)
+                    pointRadius: 0,      // Esconde as bolinhas (pontos)
+                    pointHoverRadius: 6, // Mostra a bolinha só quando passa o mouse
+                    pointBackgroundColor: '#fff' // Bolinha branca ao passar o mouse
+                },
+                {
+                    label: 'Ano Anterior ({{ date("Y") - 1 }})',
+                    data: {!! json_encode($previousSales) !!}, // Seus dados do Laravel
+                    
+                    // Estilo da Linha Azul
+                    borderColor: '#0ea5e9',
+                    backgroundColor: gradientPrev,
+                    borderWidth: 2, // Um pouco mais fina para dar destaque ao ano atual
+                    
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#fff'
+                }
+            ]
+        };
+
+        // 3. Configurações do Gráfico
+        var chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',      // Mostra tooltip dos dois anos ao mesmo tempo
+                intersect: false,
+            },
+            plugins: {
+                legend: {
+                    labels: { 
+                        color: '#fff',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    } // Legenda branca
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    titleFont: {
+                        size: 14,
+                        weight: 'bold'
                     },
-                    {
-                        label: 'Ano Anterior ({{ date('Y') - 1 }})',
-                        backgroundColor: '#343a40', // Cinza
-                        borderColor: '#343a40',
-                        pointRadius: false,
-                        pointColor: 'rgba(210, 214, 222, 1)',
-                        pointStrokeColor: '#c1c7d1',
-                        pointHighlightFill: '#fff',
-                        pointHighlightStroke: 'rgba(220,220,220,1)',
-                        data: {!! json_encode($previousSales) !!} // <--- DADOS FAKE ANO PASSADO
+                    bodyFont: {
+                        size: 13
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)', // Grade bem suave
+                        drawBorder: false
                     },
-                ]
-            }
-
-            // --- CONFIGURAÇÃO VISUAL ---
-            var barChartCanvas = $('#barChart').get(0).getContext('2d')
-            var barChartData = $.extend(true, {}, areaChartData)
-
-            // Inverter as ordens se quiser (às vezes o dataset 0 fica atrás)
-            var temp0 = areaChartData.datasets[0]
-            var temp1 = areaChartData.datasets[1]
-            barChartData.datasets[0] = temp1
-            barChartData.datasets[1] = temp0
-
-            var barChartOptions = {
-                responsive: true,
-                maintainAspectRatio: false,
-                datasetFill: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
+                    ticks: { 
+                        color: '#adb5bd',
+                        font: {
+                            size: 14
+                        }
+                    }
+                },
+                x: {
+                    grid: { display: false }, // Remove grade vertical (igual a imagem)
+                    ticks: { 
+                        color: '#adb5bd',
+                        font: {
+                            size: 14
+                        }
                     }
                 }
             }
+        };
 
-            new Chart(barChartCanvas, {
-                type: 'bar',
-                data: barChartData,
-                options: barChartOptions
-            })
-        })
-    </script>
+        // 4. Renderizar
+        new Chart(ctx, {
+            type: 'line', // MUDAMOS DE BAR PARA LINE
+            data: areaChartData,
+            options: chartOptions
+        });
+    });
+</script>
 @stop

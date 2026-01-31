@@ -15,28 +15,81 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        var dailyCtx = document.getElementById('dailyChart').getContext('2d');
+        var dailyCanvas = document.getElementById('dailyChart');
+        var dailyCtx = dailyCanvas.getContext('2d');
+
+        // Gradient para preenchimento suave da linha
+        var gradientDaily = dailyCtx.createLinearGradient(0, 0, 0, 250);
+        gradientDaily.addColorStop(0, 'rgba(124,58,237,0.35)'); // topo mais opaco
+        gradientDaily.addColorStop(1, 'rgba(14,165,233,0.0)');   // base transparente
 
         new Chart(dailyCtx, {
-            type: 'line', // Mudei para LINHA pra ficar estiloso o fluxo do dia (pode ser bar tbm)
+            type: 'line',
             data: {
                 labels: {!! json_encode($dataDaily['labels']) !!},
                 datasets: [{
                     label: 'Vendas Hoje',
-                    backgroundColor: 'rgba(52,58,64, 0.5)', // Cor "Info" do AdminLTE
-                    borderColor: 'rgba(52,58,64, 1)', // Amarelo forte
-                    pointRadius: 4,
-                    pointBackgroundColor: '#fff',
-                    fill: true, // Preenche embaixo da linha
-                    data: {!! json_encode($dataDaily['data']) !!}
+                    data: {!! json_encode($dataDaily['data']) !!},
+                    borderColor: '#7c3aed',
+                    backgroundColor: gradientDaily,
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#fff'
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                plugins: {
+                    legend: { 
+                        labels: { 
+                            color: '#e2e8f0',
+                            font: {
+                                size: 13,
+                                weight: 'bold'
+                            }
+                        } 
+                    },
+                    tooltip: { 
+                        backgroundColor: '#0f172a', 
+                        titleColor: '#e2e8f0', 
+                        bodyColor: '#cbd5e1',
+                        titleFont: {
+                            size: 13,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 14
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
                 scales: {
+                    x: {
+                        ticks: { 
+                            color: '#cbd5e1',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        grid: { display: false }
+                    },
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        ticks: { 
+                            color: '#cbd5e1',
+                            font: {
+                                size: 14
+                            }
+                        },
+                        grid: { color: 'rgba(30,41,59,0.5)' }
                     }
                 }
             }
