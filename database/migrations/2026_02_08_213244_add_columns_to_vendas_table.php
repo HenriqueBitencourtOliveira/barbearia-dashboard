@@ -1,0 +1,32 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+{
+    Schema::table('vendas', function (Blueprint $table) {
+        $table->string('category')->nullable()->after('payment_id');
+
+        $table->string('external_reference', 64)
+            ->nullable()
+            ->index()
+            ->after('category')
+            ->comment('Referência externa enviada ao Mercado Pago');
+    });
+}
+
+public function down(): void
+{
+    Schema::table('vendas', function (Blueprint $table) {
+        $table->dropColumn([
+            'category',
+            'external_reference'
+        ]);
+    });
+}
+
+};

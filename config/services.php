@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+     'mercado_pago' => [
+        'token' => env('MERCADO_PAGO_TOKEN'),
+        'point_id' => env('MERCADO_PAGO_POINT_ID'),
+    ],
+
 ];
