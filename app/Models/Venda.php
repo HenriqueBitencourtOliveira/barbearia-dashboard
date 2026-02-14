@@ -14,6 +14,8 @@ class Venda extends Model
         'amount',
         'payment_method',
         'payment_id',
+        'category',
+        'external_reference',
         'status',
         'sold_at',
         'barber',
@@ -24,4 +26,9 @@ class Venda extends Model
         'sold_at' => 'datetime',
         'amount' => 'decimal:2',
     ];
+
+    public function itens()
+    {
+        return $this->hasMany(ItemVenda::class);
+    }
 }

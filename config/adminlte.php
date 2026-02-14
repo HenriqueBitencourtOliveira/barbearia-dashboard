@@ -317,6 +317,16 @@ return [
             'url' => '/vendas',
             'icon' => 'fas fa-shopping-cart',
         ],
+        [
+            'text' => 'Nova venda',
+            'url' => '/vendas/create',
+            'icon' => 'fas fa-plus-circle',
+        ],
+        [
+            'text' => 'Cadastrar produto',
+            'url' => '/produtos/create',
+            'icon' => 'fas fa-plus-circle',
+        ],
        
     ],
 

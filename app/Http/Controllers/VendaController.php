@@ -13,7 +13,7 @@ class VendaController extends Controller
     {
 
         // começo a query pegando o ultimo registro de venda
-        $query = Venda::latest('sold_at');      
+        $query = Venda::latest('sold_at');
 
         if ($request->filled('barber')) {
             $query->where('barber', $request->input('barber'));
@@ -29,24 +29,24 @@ class VendaController extends Controller
 
         if ($request->filled('description')) {
             $query->where('description', 'like', '%' . $request->input('description') . '%');
-        }        
+        }
 
         // pego somente 10 registros por paginas e mantenho o filtro na paginação
         $sales = $query->paginate(10)->appends($request->all());
-        
+
         // pegamos os barbeiros para o filtro da view
         $barbers = Venda::select('barber')
-                            ->whereNotnull('barber')
-                            ->distinct()
-                            ->orderBy('barber')
-                            ->pluck('barber');
+            ->whereNotnull('barber')
+            ->distinct()
+            ->orderBy('barber')
+            ->pluck('barber');
 
 
         return view('vendas.index', compact('sales', 'barbers'));
     }
     public function store(Request $request)
     {
-        $request->merge(['external_reference' => $request->input('barber') .'-'. time()]); 
+        $request->merge(['external_reference' => $request->input('barber') . '-' . time()]);
 
         $data = $request->validate([
             'description' => 'required|string|max:255',
@@ -60,7 +60,7 @@ class VendaController extends Controller
         dd($data);
 
         if ($request->input('payment_method') == 'mercado_pago') {
-            # code...
+            // logica para chamar o serviço do mercado pago e criar o pagamento
         }
 
         //Adicionar campos automáticos
@@ -89,5 +89,14 @@ class VendaController extends Controller
         $venda->update($dados);
 
         return back()->with('success', 'Venda atualizada com sucesso!');
+    }
+
+    public function create()
+    {
+        // Se você for buscar os barbeiros para o select da nova venda, pode fazer aqui:
+        $produtos = \App\Models\Produto::all();
+
+        // Retorna a nova tela que vamos criar para ser o "Ponto de Venda"
+        return view('vendas.create', compact('produtos'));
     }
 }
