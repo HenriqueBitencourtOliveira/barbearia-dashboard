@@ -91,9 +91,7 @@
                         <label for="payment_method">Forma de Pagamento</label>
                         <select name="payment_method" id="payment_method" class="form-control bg-secondary text-white border-0" required>
                             <option value="money">Dinheiro</option>
-                            <option value="pix_manual">Pix (Manual)</option>
-                            <option value="debit_card">Débito</option>
-                            <option value="credit_card">Crédito</option>
+                            <option value="mercado_pago">Marcado pago</option>
                         </select>
                     </div>
 

@@ -8,18 +8,19 @@
 
 @section('content')
 
-@include('vendas.components.filter')
+    @include('vendas.components.filter')
 
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Histórico</h3>
-            </div>
+        </div>
         <div class="card-body table-responsive p-0">
             <table class="table table-hover text-nowrap">
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Descrição</th>
+                        <th>Categoria</th>
                         <th>Barbeiro</th>
                         <th>Valor</th>
                         <th>Pagamento</th>
@@ -32,7 +33,31 @@
                     @forelse ($sales as $sale)
                         <tr>
                             <td>{{ $sale->id }}</td>
-                            <td>{{ $sale->description }}</td>
+
+                            <td>
+                                @if ($sale->itens && $sale->itens->count() > 0)
+                                    @foreach ($sale->itens as $item)
+                                        <span class="d-block text-bold">{{ $item->nome }}</span>
+                                    @endforeach
+                                @else
+                                    {{ $sale->description }}
+                                @endif
+                            </td>
+
+                            {{-- Nova Coluna de Categoria --}}
+                            <td>
+                                @if ($sale->itens && $sale->itens->count() > 0)
+                                    {{-- O unique('categoria') filtra as duplicadas para você --}}
+                                    @foreach ($sale->itens->unique('categoria') as $item)
+                                        <span class="d-block badge badge-info mb-1" style="max-width: fit-content;">
+                                            <i class="fas fa-tag fa-xs"></i> {{ $item->categoria ?? 'GERAL' }}
+                                        </span>
+                                    @endforeach
+                                @else
+                                    <span class="badge badge-secondary">S/ CAT</span>
+                                @endif
+                            </td>
+
                             <td>{{ $sale->barber ?? '-' }}</td>
                             <td>R$ {{ number_format($sale->amount, 2, ',', '.') }}</td>
 
@@ -41,22 +66,37 @@
                             <td>{{ $sale->sold_at->format('d/m/Y H:i') }}</td>
 
                             <td>
-                                @if ($sale->status == 'completed')
+                                @if ($sale->status == 'completed' || $sale->status == 'processed')
                                     <span class="badge badge-success">Concluído</span>
-                                @elseif($sale->status == 'pending')
+                                @elseif($sale->status == 'pending' || $sale->status == 'created' || $sale->status == 'at_terminal')
                                     <span class="badge badge-warning">Pendente</span>
+                                @elseif($sale->status == 'canceled' || $sale->status == 'refunded' || $sale->status == 'failed')
+                                    <span class="badge badge-danger">Estornado</span>
                                 @else
-                                    <span class="badge badge-danger">{{ $sale->status }}</span>
+                                    <span class="badge badge-secondary">{{ $sale->status }}</span>
                                 @endif
                             </td>
 
-                            <td>
-                                <button type="button" class="btn btn-xs btn-secondary btn-editar" data-toggle="modal"
+                            <td class="d-flex">
+                                {{-- Botão Editar --}}
+                                <button type="button" class="btn btn-xs btn-secondary btn-editar mr-1" data-toggle="modal"
                                     data-target="#modal-editar-venda" data-id="{{ $sale->id }}"
                                     data-description="{{ $sale->description }}" data-barber="{{ $sale->barber }}"
                                     data-amount="{{ $sale->amount }}" data-payment_method="{{ $sale->payment_method }}"
                                     data-sold_at="{{ $sale->sold_at->format('Y-m-d\TH:i') }}">
-                                    <i class="fas fa-pen"></i> </button>
+                                    <i class="fas fa-pen"></i>
+                                </button>
+
+                                {{-- Botão Estornar (Só mostra se a venda não estiver cancelada) --}}
+                                @if ($sale->status !== 'refunded' && $sale->payment_method == 'mercado_pago')
+                                    <form action="{{ route('vendas.estornar', $sale->id) }}" method="POST"
+                                        onsubmit="return confirm('Deseja realmente estornar esta venda? Isso cancelará o pagamento na maquininha.')">
+                                        @csrf
+                                        <button type="submit" class="btn btn-xs btn-danger">
+                                            <i class="fas fa-undo"></i>
+                                        </button>
+                                    </form>
+                                @endif
                             </td>
                         </tr>
                     @empty
@@ -86,12 +126,11 @@
 
                 <form id="form-editar-venda" action="#" method="POST">
                     @csrf
-                    @method('PUT') 
+                    @method('PUT')
                     <div class="modal-body">
                         <div class="form-group">
                             <label>Serviço / Descrição</label>
-                            <input type="text" name="description" id="edit-description" class="form-control"
-                                required>
+                            <input type="text" name="description" id="edit-description" class="form-control" required>
                         </div>
 
                         <div class="form-group">
@@ -113,9 +152,7 @@
                             <label>Forma de Pagamento</label>
                             <select name="payment_method" id="edit-payment_method" class="form-control">
                                 <option value="money">Dinheiro</option>
-                                <option value="pix_manual">Pix (Manual)</option>
-                                <option value="debit_card">Débito</option>
-                                <option value="credit_card">Crédito</option>
+                                <option value="mercado_pago">Maquina</option>
                             </select>
                         </div>
 

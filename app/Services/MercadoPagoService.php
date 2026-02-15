@@ -20,13 +20,17 @@ class MercadoPagoService
         /** @var \Illuminate\Http\Client\Response $response */
 
         $response = Http::withToken($this->token)
+            ->withHeaders([
+                'X-Idempotency-Key' => $dadosVenda['external_reference'] // <-- Chave de segurança adicionada aqui!
+            ])
             ->post('https://api.mercadopago.com/v1/orders', [
                 'type' => 'point',
                 'external_reference' => $dadosVenda['external_reference'],
                 'transactions' => [
                     'payments' => [
                         [
-                            'amount' => number_format($dadosVenda['valor'], 2, '.', '') // Garante formato "15.50"
+                            // O (float) garante que vá como número e não texto
+                            'amount' => number_format($dadosVenda['valor'], 2, '.', '')
                         ]
                     ]
                 ],
@@ -36,6 +40,30 @@ class MercadoPagoService
                     ]
                 ]
             ]);
+
+        return $response->json();
+    }
+
+    public function consultarOrdem($id)
+    {
+
+        /** @var \Illuminate\Http\Client\Response $response */
+
+        $response = Http::withToken($this->token)
+            ->get("https://api.mercadopago.com/v1/orders/{$id}");
+
+        return $response->json();
+    }
+
+    public function estornarOrdem($paymentId)
+    {
+
+        /** @var \Illuminate\Http\Client\Response $response */
+        $response = Http::withToken($this->token)
+            ->withHeaders([
+                'X-Idempotency-Key' => uniqid() // Gera uma chave única para esta requisição
+            ])
+            ->post("https://api.mercadopago.com/v1/orders/{$paymentId}/refund");
 
         return $response->json();
     }

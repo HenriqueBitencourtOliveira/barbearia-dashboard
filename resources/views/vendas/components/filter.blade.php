@@ -13,15 +13,16 @@
     <div class="card-body" style="display: none;">
         <form method="GET" action="{{ route('vendas.index') }}">
             <div class="row">
-                
+
                 {{-- 1. Barbeiro --}}
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <div class="form-group">
                         <label>Barbeiro</label>
                         <select name="barber" class="form-control">
                             <option value="">Todos</option>
                             @foreach ($barbers as $barber)
-                                <option value="{{ $barber }}" {{ request('barber') == $barber ? 'selected' : '' }}>
+                                <option value="{{ $barber }}"
+                                    {{ request('barber') == $barber ? 'selected' : '' }}>
                                     {{ $barber }}
                                 </option>
                             @endforeach
@@ -29,21 +30,36 @@
                     </div>
                 </div>
 
-                {{-- 2. Tipo de Pagamento --}}
-                <div class="col-md-3">
+                {{-- 2. Categoria (NOVO) --}}
+                <div class="col-md-2">
                     <div class="form-group">
-                        <label>Pagamento</label>
-                        <select name="payment_method" class="form-control">
-                            <option value="">Todos</option>
-                            <option value="money" {{ request('payment_method') == 'money' ? 'selected' : '' }}>Dinheiro</option>
-                            <option value="pix_manual" {{ request('payment_method') == 'pix_manual' ? 'selected' : '' }}>Pix</option>
-                            <option value="credit_card" {{ request('payment_method') == 'credit_card' ? 'selected' : '' }}>Crédito</option>
-                            <option value="debit_card" {{ request('payment_method') == 'debit_card' ? 'selected' : '' }}>Débito</option>
+                        <label>Categoria</label>
+                        <select name="category" class="form-control">
+                            <option value="">Todas</option>
+                            @foreach ($categories as $cat)
+                                <option value="{{ $cat }}" {{ request('category') == $cat ? 'selected' : '' }}>
+                                    {{ $cat }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
 
-                {{-- 3. Data --}}
+                {{-- 3. Tipo de Pagamento --}}
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label>Pagamento</label>
+                        <select name="payment_method" class="form-control">
+                            <option value="">Todos</option>
+                            <option value="money" {{ request('payment_method') == 'money' ? 'selected' : '' }}>Dinheiro
+                            </option>
+                            <option value="mercado_pago"
+                                {{ request('payment_method') == 'mercado_pago' ? 'selected' : '' }}>Maquina</option>
+                        </select>
+                    </div>
+                </div>
+
+                {{-- 4. Data --}}
                 <div class="col-md-3">
                     <div class="form-group">
                         <label>Data da Venda</label>
@@ -51,16 +67,47 @@
                     </div>
                 </div>
 
-                {{-- 4. Descrição --}}
+                {{-- 5. Descrição --}}
                 <div class="col-md-3">
                     <div class="form-group">
                         <label>Descrição</label>
-                        <input type="text" name="description" class="form-control" 
-                               placeholder="Ex: Corte" value="{{ request('description') }}">
+                        <input type="text" name="description" class="form-control" placeholder="Ex: Corte"
+                            value="{{ request('description') }}">
                     </div>
                 </div>
 
-            </div> <div class="row">
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status" class="form-control">
+                            <option value="">Todos</option>
+                            @foreach ($statusVendas as $status)
+                                @php
+                                    // Mapeia o valor do banco para o nome em português
+                                    $statusNomes = [
+                                        'completed' => 'Concluído',
+                                        'processed' => 'Concluído',
+                                        'pending' => 'Pendente',
+                                        'created' => 'Pendente',
+                                        'canceled' => 'Cancelado',
+                                        'refunded' => 'Estornado',
+                                        'failed' => 'Falha',
+                                    ];
+                                    $nomeExibicao = $statusNomes[$status] ?? ucfirst($status);
+                                @endphp
+
+                                {{-- O "value" continua sendo o original em inglês para o Controller entender --}}
+                                <option value="{{ $status }}"
+                                    {{ request('status') == $status ? 'selected' : '' }}>
+                                    {{ $nomeExibicao }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
                 <div class="col-md-12 text-right">
                     <a href="{{ route('vendas.index') }}" class="btn btn-default mr-1">
                         <i class="fas fa-times"></i> Limpar Filtros

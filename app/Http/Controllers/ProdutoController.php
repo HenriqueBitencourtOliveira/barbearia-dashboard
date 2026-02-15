@@ -63,7 +63,7 @@ class ProdutoController extends Controller
         if ($request->hasFile('imagem') && $request->file('imagem')->isValid()) {
             // Apaga a antiga do servidor (se existir)
             if ($produto->imagem) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($produto->imagem);
+                Storage::disk('public')->delete($produto->imagem);
             }
             // Salva a nova
             $data['imagem'] = $request->file('imagem')->store('produtos', 'public');

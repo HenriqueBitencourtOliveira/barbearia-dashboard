@@ -56,6 +56,20 @@ services:
             - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025'
         networks:
             - sail
+
+    # ADICIONAMOS O NGROK AQUI
+    ngrok:
+        image: 'ngrok/ngrok:latest'
+        ports:
+            - '4040:4040'
+        environment:
+            NGROK_AUTHTOKEN: '${NGROK_AUTHTOKEN}'
+        command: "http laravel.test:80"
+        networks:
+            - sail
+        depends_on:
+            - laravel.test
+
 networks:
     sail:
         driver: bridge
