@@ -6,21 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up()
     {
         Schema::table('produtos', function (Blueprint $table) {
-            // Adiciona a coluna 'imagem', pode ser nula caso não tenha foto
-            $table->string('imagem')->nullable()->after('categoria');
+            
+            $table->string('image')->nullable()->after('category');
         });
     }
 
     public function down()
     {
         Schema::table('produtos', function (Blueprint $table) {
-            $table->dropColumn('imagem');
+            $table->dropColumn('image');
         });
     }
 };

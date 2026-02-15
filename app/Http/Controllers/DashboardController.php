@@ -58,13 +58,13 @@ class DashboardController extends Controller
     }
 
 
-        /**
-         * Retorna um array com as vendas semanais, com a chave 'labels' para os labels do gráfico e 'data' para os dados do gráfico.
-         * As vendas são somadas por dia, desde 6 dias atrás até o dia atual.
-         * Se tiver barbeiro, a soma será feita apenas com as vendas do barbeiro informado.
-         * @param Request $request
-         * @return array
-         */
+    /**
+     * Retorna um array com as vendas semanais, com a chave 'labels' para os labels do gráfico e 'data' para os dados do gráfico.
+     * As vendas são somadas por dia, desde 6 dias atrás até o dia atual.
+     * Se tiver barbeiro, a soma será feita apenas com as vendas do barbeiro informado.
+     * @param Request $request
+     * @return array
+     */
     private function getWeeklySales(Request $request)
     {
         $vendas = [];
@@ -90,13 +90,13 @@ class DashboardController extends Controller
         return ['labels' => $labels, 'data' => $vendas];
     }
 
-/**
- * Retorna um array com as vendas diárias do dia atual, com a chave 'labels' para os labels do gráfico e 'data' para os dados do gráfico.
- * As vendas são somadas por hora, desde as 7h até as 23h.
- * Se tiver barbeiro, a soma será feita apenas com as vendas do barbeiro informado.
- * @param Request $request
- * @return array
- */
+    /**
+     * Retorna um array com as vendas diárias do dia atual, com a chave 'labels' para os labels do gráfico e 'data' para os dados do gráfico.
+     * As vendas são somadas por hora, desde as 7h até as 23h.
+     * Se tiver barbeiro, a soma será feita apenas com as vendas do barbeiro informado.
+     * @param Request $request
+     * @return array
+     */
     private function getDailySales(Request $request)
     {
         $sales = [];
@@ -105,16 +105,16 @@ class DashboardController extends Controller
         $date = now(); // Isso já pega o Timezone configurado no .env
 
         for ($i = 7; $i <= 23; $i++) {
-            
+
             $horaInicio = str_pad($i, 2, '0', STR_PAD_LEFT) . ':00:00';
             $horaFim    = str_pad($i, 2, '0', STR_PAD_LEFT) . ':59:59';
-            
+
             $labels[] = str_pad($i, 2, '0', STR_PAD_LEFT) . ':00';
 
             // 1. Inicia a Query
             $query = Venda::whereDate('sold_at', $date->toDateString())
-                          ->whereTime('sold_at', '>=', $horaInicio)
-                          ->whereTime('sold_at', '<=', $horaFim);
+                ->whereTime('sold_at', '>=', $horaInicio)
+                ->whereTime('sold_at', '<=', $horaFim);
 
             // 2. Adiciona o filtro SE precisar
             if ($barberSelect) {

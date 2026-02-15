@@ -37,7 +37,7 @@
                             <td>
                                 @if ($sale->itens && $sale->itens->count() > 0)
                                     @foreach ($sale->itens as $item)
-                                        <span class="d-block text-bold">{{ $item->nome }}</span>
+                                        <span class="d-block text-bold">{{ $item->name }}</span>
                                     @endforeach
                                 @else
                                     {{ $sale->description }}
@@ -47,10 +47,10 @@
                             {{-- Nova Coluna de Categoria --}}
                             <td>
                                 @if ($sale->itens && $sale->itens->count() > 0)
-                                    {{-- O unique('categoria') filtra as duplicadas para você --}}
-                                    @foreach ($sale->itens->unique('categoria') as $item)
+                                    {{-- O unique('category') filtra as duplicadas para você --}}
+                                    @foreach ($sale->itens->unique('category') as $item)
                                         <span class="d-block badge badge-info mb-1" style="max-width: fit-content;">
-                                            <i class="fas fa-tag fa-xs"></i> {{ $item->categoria ?? 'GERAL' }}
+                                            <i class="fas fa-tag fa-xs"></i> {{ $item->category ?? 'GERAL' }}
                                         </span>
                                     @endforeach
                                 @else
@@ -90,9 +90,9 @@
                                 {{-- Botão Estornar (Só mostra se a venda não estiver cancelada) --}}
                                 @if ($sale->status !== 'refunded' && $sale->payment_method == 'mercado_pago')
                                     <form action="{{ route('vendas.estornar', $sale->id) }}" method="POST"
-                                        onsubmit="return confirm('Deseja realmente estornar esta venda? Isso cancelará o pagamento na maquininha.')">
+                                        class="form-estornar d-inline-block">
                                         @csrf
-                                        <button type="submit" class="btn btn-xs btn-danger">
+                                        <button type="submit" class="btn btn-xs btn-danger" title="Estornar Venda">
                                             <i class="fas fa-undo"></i>
                                         </button>
                                     </form>
@@ -198,5 +198,42 @@
             url = url.replace(':id', id);
             $('#form-editar-venda').attr('action', url);
         })
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Intercepta o envio de qualquer formulário que tenha a classe 'form-estornar'
+        $('.form-estornar').on('submit', function(e) {
+            e.preventDefault(); // Pausa o envio padrão do HTML
+
+            const form = this; // Guarda a referência do formulário clicado
+
+            Swal.fire({
+                title: 'Atenção!',
+                text: "Deseja realmente estornar esta venda? O valor será devolvido ao cliente e a maquininha será notificada.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33', // Vermelho para ação destrutiva
+                cancelButtonColor: '#6c757d', // Cinza para cancelar
+                confirmButtonText: '<i class="fas fa-undo"></i> Sim, estornar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                // Se o usuário clicar no botão "Sim, estornar!"
+                if (result.isConfirmed) {
+                    // Mostra um aviso de carregamento enquanto o Laravel processa o estorno
+                    Swal.fire({
+                        title: 'Processando...',
+                        text: 'Comunicando com o Mercado Pago, aguarde.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // Dispara o formulário de verdade
+                    form.submit();
+                }
+            });
+        });
     </script>
 @stop

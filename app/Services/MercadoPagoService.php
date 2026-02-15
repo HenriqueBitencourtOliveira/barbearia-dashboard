@@ -57,13 +57,13 @@ class MercadoPagoService
 
     public function estornarOrdem($paymentId)
     {
-
         /** @var \Illuminate\Http\Client\Response $response */
         $response = Http::withToken($this->token)
             ->withHeaders([
-                'X-Idempotency-Key' => uniqid() // Gera uma chave única para esta requisição
+                // Usamos uniqid() para garantir que a chave nunca se repita
+                'X-Idempotency-Key' => uniqid()
             ])
-            ->post("https://api.mercadopago.com/v1/orders/{$paymentId}/refund");
+            ->post("https://api.mercadopago.com/v1/orders/{$paymentId}/refund", (object) []);
 
         return $response->json();
     }

@@ -8,10 +8,10 @@ class ItemVenda extends Model
 {
     protected $fillable = [
         'venda_id', 
-        'nome',
-        'preco_unitario', 
-        'quantidade', 
-        'categoria',
+        'name',
+        'unit_price', 
+        'quantity', 
+        'category',
         'barber'
         ];
 }

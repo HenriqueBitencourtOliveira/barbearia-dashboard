@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Produto;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage; // Importante para apagar imagens
+use Illuminate\Support\Facades\Storage;
 
 class ProdutoController extends Controller
 {
@@ -16,20 +16,26 @@ class ProdutoController extends Controller
         return view('produtos.create', compact('produtos'));
     }
 
+    /**
+     * Salva um novo produto no banco de dados.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         $data = $request->validate([
-            'nome' => 'required|string|max:255',
-            'preco' => 'required|numeric|min:0',
-            'categoria' => 'required|string',
-            'imagem' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validação da imagem
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'category' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Mudou para image
         ]);
 
-        // Lógica de upload da imagem
-        if ($request->hasFile('imagem') && $request->file('imagem')->isValid()) {
+        // Lógica de upload da imagem (tudo para image agora)
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
             // Salva na pasta 'public/produtos' e gera um nome único
-            $imagePath = $request->file('imagem')->store('produtos', 'public');
-            $data['imagem'] = $imagePath;
+            $imagePath = $request->file('image')->store('produtos', 'public');
+            $data['image'] = $imagePath;
         }
 
         Produto::create($data);
@@ -37,12 +43,18 @@ class ProdutoController extends Controller
         return back()->with('success', 'Item cadastrado com sucesso!');
     }
 
-    // Adicione este método para a exclusão
+
+    /**
+     * Remove um produto do banco de dados e apaga a imagem do servidor se houver.
+     *
+     * @param Produto $produto
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(Produto $produto)
     {
-        // Se tiver imagem, apaga ela do servidor para não ocupar espaço
-        if ($produto->imagem) {
-            Storage::disk('public')->delete($produto->imagem);
+        // Acessa a coluna em inglês: image
+        if ($produto->image) {
+            Storage::disk('public')->delete($produto->image);
         }
 
         $produto->delete();
@@ -50,23 +62,31 @@ class ProdutoController extends Controller
         return back()->with('success', 'Produto removido com sucesso!');
     }
 
+    /**
+     * Atualiza um produto no banco de dados e apaga a imagem do servidor se houver uma nova.
+     *
+     * @param Request $request
+     * @param Produto $produto
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update(Request $request, Produto $produto)
     {
+        // Passado tudo para inglês para bater com o banco
         $data = $request->validate([
-            'nome' => 'required|string|max:255',
-            'preco' => 'required|numeric|min:0',
-            'categoria' => 'required|string',
-            'imagem' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'category' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         // Se o usuário mandou uma foto nova
-        if ($request->hasFile('imagem') && $request->file('imagem')->isValid()) {
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
             // Apaga a antiga do servidor (se existir)
-            if ($produto->imagem) {
-                Storage::disk('public')->delete($produto->imagem);
+            if ($produto->image) {
+                Storage::disk('public')->delete($produto->image);
             }
             // Salva a nova
-            $data['imagem'] = $request->file('imagem')->store('produtos', 'public');
+            $data['image'] = $request->file('image')->store('produtos', 'public');
         }
 
         $produto->update($data);
