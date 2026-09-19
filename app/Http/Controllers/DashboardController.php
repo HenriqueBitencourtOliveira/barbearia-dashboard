@@ -40,7 +40,12 @@ class DashboardController extends Controller
     private function getMonthlySales($year, $barber = null)
     {
         $query = Venda::selectRaw('MONTH(sold_at) as mes, SUM(amount) as total')
-            ->whereYear('sold_at', $year);
+            ->whereYear('sold_at', $year)
+            ->where(function ($query) {
+                $query->where('status', 'processed')
+                      ->orWhere('status', 'completed');
+            });
+            
 
         if ($barber) {
             $query->where('barber', $barber);
@@ -76,7 +81,11 @@ class DashboardController extends Controller
             $labels[] = $data->format('d/m');
 
             // 1. Inicia a Query baseada na data
-            $query = Venda::whereDate('sold_at', $data->toDateString());
+            $query = Venda::whereDate('sold_at', $data->toDateString())
+                ->where(function ($query) {
+                    $query->where('status', 'processed')
+                          ->orWhere('status', 'completed');
+                });
 
             // 2. Se tiver barbeiro, ADICIONA a condição na mesma query
             if ($barberSelect) {
@@ -114,7 +123,11 @@ class DashboardController extends Controller
             // 1. Inicia a Query
             $query = Venda::whereDate('sold_at', $date->toDateString())
                 ->whereTime('sold_at', '>=', $horaInicio)
-                ->whereTime('sold_at', '<=', $horaFim);
+                ->whereTime('sold_at', '<=', $horaFim)
+                ->where(function ($query) {
+                    $query->where('status', 'processed')
+                          ->orWhere('status', 'completed');
+                });
 
             // 2. Adiciona o filtro SE precisar
             if ($barberSelect) {

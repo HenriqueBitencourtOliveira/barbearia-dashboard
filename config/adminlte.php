@@ -303,28 +303,49 @@ return [
         // Sidebar items:
         [
             'text' => 'blog',
-            'url' => 'admin/blog',
-            'can' => 'manage-blog',
+            'url'  => 'admin/blog',
+            'can'  => 'manage-blog',
         ],
         ['header' => 'Navegação Principal'],
         [
             'text' => 'Dashboard',
-            'url' => '/dashboard',
+            'url'  => '/dashboard',
             'icon' => 'fas fa-fw fa-chart-bar',
         ],
         [
             'text' => 'Vendas',
-            'url' => '/vendas',
+            'url'  => '/vendas',
             'icon' => 'fas fa-shopping-cart',
         ],
         [
             'text' => 'Nova venda',
-            'url' => '/vendas/create',
+            'url'  => '/vendas/create',
             'icon' => 'fas fa-plus-circle',
         ],
         [
             'text' => 'Cadastrar produto',
-            'url' => '/produtos/create',
+            'url'  => '/produtos/create',
+            'icon' => 'fas fa-plus-circle',
+        ],
+        ['header' => 'Gestão de Assinaturas'],
+        [
+            'text' => 'Clientes',
+            'url'  => '/clientes',
+            'icon' => 'fas fa-users',
+        ],
+        [
+            'text' => 'Novo cliente',
+            'url'  => '/clientes/create',
+            'icon' => 'fas fa-user-plus',
+        ],
+        [
+            'text' => 'Planos',
+            'url'  => '/planos',
+            'icon' => 'fas fa-star',
+        ],
+        [
+            'text' => 'Novo plano',
+            'url'  => '/planos/create',
             'icon' => 'fas fa-plus-circle',
         ],
        

@@ -79,16 +79,18 @@
 
                             <td class="d-flex">
                                 {{-- Botão Editar --}}
-                                <button type="button" class="btn btn-xs btn-secondary btn-editar mr-1" data-toggle="modal"
+                                @if ($sale->status !== 'refunded')
+                                    <button type="button" class="btn btn-xs btn-secondary btn-editar mr-1" data-toggle="modal"
                                     data-target="#modal-editar-venda" data-id="{{ $sale->id }}"
                                     data-description="{{ $sale->description }}" data-barber="{{ $sale->barber }}"
                                     data-amount="{{ $sale->amount }}" data-payment_method="{{ $sale->payment_method }}"
                                     data-sold_at="{{ $sale->sold_at->format('Y-m-d\TH:i') }}">
                                     <i class="fas fa-pen"></i>
                                 </button>
+                                @endif
 
                                 {{-- Botão Estornar (Só mostra se a venda não estiver cancelada) --}}
-                                @if ($sale->status !== 'refunded' && $sale->payment_method == 'mercado_pago')
+                                @if ($sale->status == 'processed' && $sale->payment_method == 'mercado_pago')
                                     <form action="{{ route('vendas.estornar', $sale->id) }}" method="POST"
                                         class="form-estornar d-inline-block">
                                         @csrf

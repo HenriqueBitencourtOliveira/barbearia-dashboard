@@ -60,80 +60,80 @@ class VendaController extends Controller
         return view('vendas.index', compact('sales', 'barbers', 'categories', 'statusVendas'));
     }
 
-    public function store(Request $request, MercadoPagoService $mercadoPagoService)
-    {
-        // 1. Gerar referência externa única
-        $request->merge(['external_reference' => $request->input('barber') . '-' . time()]);
+        public function store(Request $request, MercadoPagoService $mercadoPagoService)
+        {
+            // 1. Gerar referência externa única
+            $request->merge(['external_reference' => $request->input('barber') . '-' . time()]);
 
-        $data = $request->validate([
-            'description'        => 'required|string|max:255',
-            'barber'             => 'required|string|max:255',
-            'amount'             => 'required|numeric|min:0',
-            'payment_method'     => 'required|string',
-            'sold_at'            => 'required|date',
-            'external_reference' => 'required|string|max:64|unique:vendas,external_reference',
-            'items'              => 'required|array|min:1', 
-            'items.*.name'       => 'required|string',
-            'items.*.price'      => 'required|numeric',     
-            'items.*.category'   => 'required|string',      
-        ]);
-
-        $statusVenda = 'completed';
-        $paymentId = null;
-
-        // 3. Lógica do Mercado Pago
-        if ($data['payment_method'] === 'mercado_pago') {
-
-            $respostaMP = $mercadoPagoService->criarPagamento([
-                'external_reference' => $data['external_reference'],
-                'valor'              => $data['amount']
+            $data = $request->validate([
+                'description'        => 'required|string|max:255',
+                'barber'             => 'required|string|max:255',
+                'amount'             => 'required|numeric|min:0',
+                'payment_method'     => 'required|string',
+                'sold_at'            => 'required|date',
+                'external_reference' => 'required|string|max:64|unique:vendas,external_reference',
+                'items'              => 'required|array|min:1', 
+                'items.*.name'       => 'required|string',
+                'items.*.price'      => 'required|numeric',     
+                'items.*.category'   => 'required|string',      
             ]);
 
-            if (isset($respostaMP['id'])) {
-                $paymentId = $respostaMP['id'];
-                $statusVenda = 'pending'; 
-            } else {
-                return back()->withInput()->with('error_modal', 'Falha ao conectar com a maquininha do Mercado Pago. Tente novamente.');
-            }
-            $statusVenda = 'pending';
-        }
+            $statusVenda = 'completed';
+            $paymentId = null;
 
-        // 4. Salvar no Banco
-        try {
-            DB::transaction(function () use ($data, $statusVenda, $paymentId) {
+            // 3. Lógica do Mercado Pago
+            if ($data['payment_method'] === 'mercado_pago') {
 
-                $venda = Venda::create([
-                    'description'        => $data['description'],
-                    'amount'             => $data['amount'],
-                    'payment_method'     => $data['payment_method'],
-                    'status'             => $statusVenda,
-                    'payment_id'         => $paymentId,
-                    'sold_at'            => $data['sold_at'],
-                    'barber'             => $data['barber'],
+                $respostaMP = $mercadoPagoService->criarPagamento([
                     'external_reference' => $data['external_reference'],
+                    'valor'              => $data['amount']
                 ]);
 
-                foreach ($data['items'] as $item) { 
-                    $venda->itens()->create([ 
-                        'name'       => $item['name'],
-                        'unit_price' => $item['price'],
-                        'quantity'   => 1,
-                        'category'   => $item['category'],
-                        'barber'     => $data['barber'],
-                    ]);
+                if (isset($respostaMP['id'])) {
+                    $paymentId = $respostaMP['id'];
+                    $statusVenda = 'pending'; 
+                } else {
+                    return back()->withInput()->with('error_modal', 'Falha ao conectar com a maquininha do Mercado Pago. Tente novamente.');
                 }
-            });
-        } catch (\Throwable $th) {
-            Log::error("Erro Crítico ao salvar venda: " . $th->getMessage());
+                $statusVenda = 'pending';
+            }
 
-            return back()
-                ->withInput()
-                ->with('error_modal', 'Ops! Tivemos um problema interno ao registrar os itens no banco de dados. Por favor, tente novamente.');
+            // 4. Salvar no Banco
+            try {
+                DB::transaction(function () use ($data, $statusVenda, $paymentId) {
+
+                    $venda = Venda::create([
+                        'description'        => $data['description'],
+                        'amount'             => $data['amount'],
+                        'payment_method'     => $data['payment_method'],
+                        'status'             => $statusVenda,
+                        'payment_id'         => $paymentId,
+                        'sold_at'            => $data['sold_at'],
+                        'barber'             => $data['barber'],
+                        'external_reference' => $data['external_reference'],
+                    ]);
+
+                    foreach ($data['items'] as $item) { 
+                        $venda->itens()->create([ 
+                            'name'       => $item['name'],
+                            'unit_price' => $item['price'],
+                            'quantity'   => 1,
+                            'category'   => $item['category'],
+                            'barber'     => $data['barber'],
+                        ]);
+                    }
+                });
+            } catch (\Throwable $th) {
+                Log::error("Erro Crítico ao salvar venda: " . $th->getMessage());
+
+                return back()
+                    ->withInput()
+                    ->with('error_modal', 'Ops! Tivemos um problema interno ao registrar os itens no banco de dados. Por favor, tente novamente.');
+            }
+
+            return redirect()->route('vendas.index')
+                ->with('success', 'Venda registrada com sucesso!');
         }
-
-        return redirect()->route('vendas.index')
-            ->with('success', 'Venda registrada com sucesso!');
-    }
 
     public function update(Request $request, Venda $venda)
     {

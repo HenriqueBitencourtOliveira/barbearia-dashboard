@@ -4,6 +4,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProdutoController;
 use App\Http\Controllers\VendaController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PlanoController;
+use App\Http\Controllers\ClienteController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -37,4 +39,18 @@ Route::middleware('auth')->group(function () {
     ]);
 
     Route::post('/vendas/{id}/estornar', [VendaController::class, 'estornar'])->name('vendas.estornar');
+
+    // Planos
+    Route::resource('planos', PlanoController::class)->only([
+        'index',
+        'create',
+        'store'
+    ]);
+
+    // Clientes
+    Route::resource('clientes', ClienteController::class)->only([
+        'index',
+        'create',
+        'store'
+    ]);
 });

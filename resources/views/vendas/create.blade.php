@@ -73,74 +73,74 @@
             </div>
         </div>
 
-        <div class="col-md-4">
-            <form action="{{ route('vendas.store') }}" method="POST" id="formVenda">
-                @csrf
-                <div class="card bg-dark text-white shadow">
-                    <div class="card-header" style="background-color: #343a40;">
-                        <h3 class="card-title"><i class="fas fa-shopping-cart fa-fw"></i> Resumo da Venda</h3>
+            <div class="col-md-4">
+                <form action="{{ route('vendas.store') }}" method="POST" id="formVenda">
+                    @csrf
+                    <div class="card bg-dark text-white shadow">
+                        <div class="card-header" style="background-color: #343a40;">
+                            <h3 class="card-title"><i class="fas fa-shopping-cart fa-fw"></i> Resumo da Venda</h3>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="form-group mb-3">
+                                <label for="barber">Barbeiro</label>
+                                {{-- MUDANÇA: Adicionado old('barber') para manter selecionado se der erro --}}
+                                <select name="barber" id="barber" class="form-control bg-secondary text-white border-0"
+                                    required>
+                                    <option value="">Selecione o profissional...</option>
+                                    <option value="Fellipe" {{ old('barber') == 'Fellipe' ? 'selected' : '' }}>Fellipe</option>
+                                    <option value="Jhon" {{ old('barber') == 'Jhon' ? 'selected' : '' }}>Jhon</option>
+                                    <option value="Careca" {{ old('barber') == 'Careca' ? 'selected' : '' }}>Careca</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="sold_at">Data/Hora</label>
+                                {{-- MUDANÇA: old('sold_at') --}}
+                                <input type="datetime-local" name="sold_at"
+                                    class="form-control bg-secondary text-white border-0"
+                                    value="{{ old('sold_at', now()->format('Y-m-d\TH:i')) }}" required>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label for="payment_method">Forma de Pagamento</label>
+                                {{-- MUDANÇA: old('payment_method') --}}
+                                <select name="payment_method" id="payment_method"
+                                    class="form-control bg-secondary text-white border-0" required>
+                                    <option value="money" {{ old('payment_method') == 'money' ? 'selected' : '' }}>Dinheiro
+                                    </option>
+                                    <option value="mercado_pago"
+                                        {{ old('payment_method') == 'mercado_pago' ? 'selected' : '' }}>Mercado pago</option>
+                                </select>
+                            </div>
+
+                            <hr class="border-secondary">
+
+                            <label>Itens Selecionados:</label>
+                            <ul id="listaCarrinho" class="list-group list-group-flush mb-3 rounded"
+                                style="max-height: 250px; overflow-y: auto;">
+                                <li class="list-group-item bg-secondary text-center text-muted" id="carrinhoVazio">
+                                    Nenhum item adicionado.
+                                </li>
+                            </ul>
+
+                            <div id="inputsOcultos"></div>
+
+                            <input type="hidden" name="amount" id="totalVendaInput" value="0">
+                            <input type="hidden" name="description" id="descricaoVendaInput" value="Venda Balcão">
+
+                            <div class="d-flex justify-content-between align-items-center mt-4">
+                                <h4 class="mb-0 text-success text-bold">Total: R$ <span id="totalExibicao">0,00</span></h4>
+                            </div>
+                        </div>
+
+                        <div class="card-footer border-top border-secondary">
+                            <button type="submit" class="btn btn-success btn-lg w-100"
+                                style="background-color: #8b5cf6; border-color: #8b5cf6;" id="btnFinalizar" disabled>
+                                <i class="fas fa-check-circle fa-fw"></i> Finalizar Venda
+                            </button>
+                        </div>
                     </div>
-
-                    <div class="card-body">
-                        <div class="form-group mb-3">
-                            <label for="barber">Barbeiro</label>
-                            {{-- MUDANÇA: Adicionado old('barber') para manter selecionado se der erro --}}
-                            <select name="barber" id="barber" class="form-control bg-secondary text-white border-0"
-                                required>
-                                <option value="">Selecione o profissional...</option>
-                                <option value="Fellipe" {{ old('barber') == 'Fellipe' ? 'selected' : '' }}>Fellipe</option>
-                                <option value="Jhon" {{ old('barber') == 'Jhon' ? 'selected' : '' }}>Jhon</option>
-                                <option value="Careca" {{ old('barber') == 'Careca' ? 'selected' : '' }}>Careca</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label for="sold_at">Data/Hora</label>
-                            {{-- MUDANÇA: old('sold_at') --}}
-                            <input type="datetime-local" name="sold_at"
-                                class="form-control bg-secondary text-white border-0"
-                                value="{{ old('sold_at', now()->format('Y-m-d\TH:i')) }}" required>
-                        </div>
-
-                        <div class="form-group mb-4">
-                            <label for="payment_method">Forma de Pagamento</label>
-                            {{-- MUDANÇA: old('payment_method') --}}
-                            <select name="payment_method" id="payment_method"
-                                class="form-control bg-secondary text-white border-0" required>
-                                <option value="money" {{ old('payment_method') == 'money' ? 'selected' : '' }}>Dinheiro
-                                </option>
-                                <option value="mercado_pago"
-                                    {{ old('payment_method') == 'mercado_pago' ? 'selected' : '' }}>Mercado pago</option>
-                            </select>
-                        </div>
-
-                        <hr class="border-secondary">
-
-                        <label>Itens Selecionados:</label>
-                        <ul id="listaCarrinho" class="list-group list-group-flush mb-3 rounded"
-                            style="max-height: 250px; overflow-y: auto;">
-                            <li class="list-group-item bg-secondary text-center text-muted" id="carrinhoVazio">
-                                Nenhum item adicionado.
-                            </li>
-                        </ul>
-
-                        <div id="inputsOcultos"></div>
-
-                        <input type="hidden" name="amount" id="totalVendaInput" value="0">
-                        <input type="hidden" name="description" id="descricaoVendaInput" value="Venda Balcão">
-
-                        <div class="d-flex justify-content-between align-items-center mt-4">
-                            <h4 class="mb-0 text-success text-bold">Total: R$ <span id="totalExibicao">0,00</span></h4>
-                        </div>
-                    </div>
-
-                    <div class="card-footer border-top border-secondary">
-                        <button type="submit" class="btn btn-success btn-lg w-100"
-                            style="background-color: #8b5cf6; border-color: #8b5cf6;" id="btnFinalizar" disabled>
-                            <i class="fas fa-check-circle fa-fw"></i> Finalizar Venda
-                        </button>
-                    </div>
-                </div>
             </form>
         </div>
     </div>
