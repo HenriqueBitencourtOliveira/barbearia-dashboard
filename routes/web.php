@@ -6,6 +6,7 @@ use App\Http\Controllers\VendaController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PlanoController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ExpenseController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -51,6 +52,13 @@ Route::middleware('auth')->group(function () {
     Route::resource('clientes', ClienteController::class)->only([
         'index',
         'create',
-        'store'
+        'store',
+        'update'
+    ]);
+
+    Route::resource('expenses', ExpenseController::class)->only([
+        'index',
+        'store',
+        'update'
     ]);
 });

@@ -327,6 +327,11 @@ return [
             'url'  => '/produtos/create',
             'icon' => 'fas fa-plus-circle',
         ],
+        [
+            'text' => 'Controle de Gastos',
+            'url'  => '/expenses',
+            'icon' => 'fas fa-wallet',
+        ],
         ['header' => 'Gestão de Assinaturas'],
         [
             'text' => 'Clientes',

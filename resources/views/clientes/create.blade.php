@@ -36,6 +36,15 @@
             </select>
         </div>
 
+        <div class="form-group mb-3">
+            <label for="barber">Barbeiro Responsável</label>
+            <select name="barber" id="barber" class="form-control">
+                <option value="">Selecione um barbeiro...</option>
+                @foreach ($barbeiros as $barbeiro)
+                    <option value="{{ $barbeiro }}">{{ $barbeiro }}</option>
+                @endforeach
+            </select>
+        </div>
         <button type="submit" class="btn btn-success">Salvar Cliente</button>
         <a href="{{ route('clientes.index') }}" class="btn btn-secondary">Voltar</a>
     </form>

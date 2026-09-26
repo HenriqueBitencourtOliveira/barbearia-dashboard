@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cliente;
 use App\Models\Venda;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -20,11 +21,14 @@ class DashboardController extends Controller
         $dataWeekly = $this->getWeeklySales($request);
         $dataDaily = $this->getDailySales($request);
 
-        $barbeiros = Venda::select('barber')
-            ->whereNotNull('barber')
-            ->distinct()
-            ->orderBy('barber')
-            ->pluck('barber');
+        // Busca barbeiros distintos das vendas e das assinaturas de clientes
+        $barbeirosVendas = Venda::whereNotNull('barber')->pluck('barber')->toArray();
+        $barbeirosClientes = Cliente::whereNotNull('barber')->pluck('barber')->toArray();
+        
+        $barbeiros = collect(array_merge($barbeirosVendas, $barbeirosClientes))
+            ->unique()
+            ->sort()
+            ->values();
 
         return view('dashboard.index', compact('currentSales', 'previousSales', 'barbeiros', 'barberSelect', 'dataWeekly', 'dataDaily'));
     }
@@ -39,24 +43,40 @@ class DashboardController extends Controller
      */
     private function getMonthlySales($year, $barber = null)
     {
-        $query = Venda::selectRaw('MONTH(sold_at) as mes, SUM(amount) as total')
+        $arraySales = array_fill(0, 12, 0);
+
+        // 1. Soma das Vendas normais
+        $queryVendas = Venda::selectRaw('MONTH(sold_at) as mes, SUM(amount) as total')
             ->whereYear('sold_at', $year)
             ->where(function ($query) {
                 $query->where('status', 'processed')
                       ->orWhere('status', 'completed');
             });
-            
 
         if ($barber) {
-            $query->where('barber', $barber);
+            $queryVendas->where('barber', $barber);
         }
 
-        $data = $query->groupBy('mes')->orderBy('mes')->get();
+        $dataVendas = $queryVendas->groupBy('mes')->orderBy('mes')->get();
 
-        $arraySales = array_fill(0, 12, 0);
+        foreach ($dataVendas as $sale) {
+            $arraySales[$sale->mes - 1] += $sale->total;
+        }
 
-        foreach ($data as $sale) {
-            $arraySales[$sale->mes - 1] = $sale->total;
+        // 2. Soma das Assinaturas de Planos (Clientes ativos)
+        $queryClientes = Cliente::join('planos', 'clientes.plano_id', '=', 'planos.id')
+            ->selectRaw('MONTH(clientes.created_at) as mes, SUM(planos.price) as total')
+            ->whereYear('clientes.created_at', $year)
+            ->where('clientes.status', 'active');
+
+        if ($barber) {
+            $queryClientes->where('clientes.barber', $barber);
+        }
+
+        $dataClientes = $queryClientes->groupBy('mes')->orderBy('mes')->get();
+
+        foreach ($dataClientes as $clienteSale) {
+            $arraySales[$clienteSale->mes - 1] += (float) $clienteSale->total;
         }
 
         return $arraySales;
@@ -72,7 +92,7 @@ class DashboardController extends Controller
      */
     private function getWeeklySales(Request $request)
     {
-        $vendas = [];
+        $vendasTotais = [];
         $labels = [];
         $barberSelect = $request->input('barber');
 
@@ -80,23 +100,35 @@ class DashboardController extends Controller
             $data = now()->subDays($i);
             $labels[] = $data->format('d/m');
 
-            // 1. Inicia a Query baseada na data
-            $query = Venda::whereDate('sold_at', $data->toDateString())
+            // 1. Soma Vendas
+            $queryVendas = Venda::whereDate('sold_at', $data->toDateString())
                 ->where(function ($query) {
                     $query->where('status', 'processed')
                           ->orWhere('status', 'completed');
                 });
 
-            // 2. Se tiver barbeiro, ADICIONA a condição na mesma query
             if ($barberSelect) {
-                $query->where('barber', $barberSelect);
+                $queryVendas->where('barber', $barberSelect);
             }
 
-            // 3. Executa a soma apenas UMA VEZ
-            $vendas[] = $query->sum('amount');
+            $somaVendas = $queryVendas->sum('amount');
+
+            // 2. Soma Planos Ativos
+            $queryClientes = Cliente::join('planos', 'clientes.plano_id', '=', 'planos.id')
+                ->whereDate('clientes.created_at', $data->toDateString())
+                ->where('clientes.status', 'active');
+
+            if ($barberSelect) {
+                $queryClientes->where('clientes.barber', $barberSelect);
+            }
+
+            $somaPlanos = $queryClientes->sum('planos.price');
+
+            // Soma ambos para o dia
+            $vendasTotais[] = $somaVendas + $somaPlanos;
         }
 
-        return ['labels' => $labels, 'data' => $vendas];
+        return ['labels' => $labels, 'data' => $vendasTotais];
     }
 
     /**
@@ -108,20 +140,19 @@ class DashboardController extends Controller
      */
     private function getDailySales(Request $request)
     {
-        $sales = [];
+        $salesTotais = [];
         $labels = [];
         $barberSelect = $request->input('barber');
-        $date = now(); // Isso já pega o Timezone configurado no .env
+        $date = now(); 
 
         for ($i = 7; $i <= 23; $i++) {
-
             $horaInicio = str_pad($i, 2, '0', STR_PAD_LEFT) . ':00:00';
             $horaFim    = str_pad($i, 2, '0', STR_PAD_LEFT) . ':59:59';
 
             $labels[] = str_pad($i, 2, '0', STR_PAD_LEFT) . ':00';
 
-            // 1. Inicia a Query
-            $query = Venda::whereDate('sold_at', $date->toDateString())
+            // 1. Soma Vendas
+            $queryVendas = Venda::whereDate('sold_at', $date->toDateString())
                 ->whereTime('sold_at', '>=', $horaInicio)
                 ->whereTime('sold_at', '<=', $horaFim)
                 ->where(function ($query) {
@@ -129,15 +160,29 @@ class DashboardController extends Controller
                           ->orWhere('status', 'completed');
                 });
 
-            // 2. Adiciona o filtro SE precisar
             if ($barberSelect) {
-                $query->where('barber', $barberSelect);
+                $queryVendas->where('barber', $barberSelect);
             }
 
-            // 3. Executa
-            $sales[] = $query->sum('amount');
+            $somaVendas = $queryVendas->sum('amount');
+
+            // 2. Soma Planos Ativos
+            $queryClientes = Cliente::join('planos', 'clientes.plano_id', '=', 'planos.id')
+                ->whereDate('clientes.created_at', $date->toDateString())
+                ->whereTime('clientes.created_at', '>=', $horaInicio)
+                ->whereTime('clientes.created_at', '<=', $horaFim)
+                ->where('clientes.status', 'active');
+
+            if ($barberSelect) {
+                $queryClientes->where('clientes.barber', $barberSelect);
+            }
+
+            $somaPlanos = $queryClientes->sum('planos.price');
+
+            // Soma ambos para a hora
+            $salesTotais[] = $somaVendas + $somaPlanos;
         }
 
-        return ['labels' => $labels, 'data' => $sales];
+        return ['labels' => $labels, 'data' => $salesTotais];
     }
 }

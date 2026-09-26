@@ -12,6 +12,7 @@ class Cliente extends Model
         'email',
         'phone',
         'plano_id',
+        'barber',
         'subscription_start',
         'subscription_end',
         'status',

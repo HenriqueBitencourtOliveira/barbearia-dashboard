@@ -6,8 +6,8 @@ use Illuminate\Support\Facades\Http;
 
 class MercadoPagoService
 {
-    protected string $token;
-    protected string $pointId;
+    protected $token;
+    protected $pointId;
 
     public function __construct()
     {
