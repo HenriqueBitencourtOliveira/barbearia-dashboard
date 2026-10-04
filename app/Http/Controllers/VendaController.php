@@ -87,7 +87,11 @@ class VendaController extends Controller
                 $respostaMP = $mercadoPagoService->criarPagamento([
                     'external_reference' => $data['external_reference'],
                     'valor'              => $data['amount']
-                ]);
+                ], $data['barber']);
+
+                if (($respostaMP['error'] ?? null) === 'credentials_not_configured') {
+                    return back()->withInput()->with('error_modal', 'Credenciais do Mercado Pago não configuradas para este barbeiro.');
+                }
 
                 if (isset($respostaMP['id'])) {
                     $paymentId = $respostaMP['id'];
@@ -161,7 +165,11 @@ class VendaController extends Controller
         $venda = Venda::findOrFail($id);
 
         if ($venda->payment_method === 'mercado_pago' && $venda->payment_id) {
-            $resposta = $mpService->estornarOrdem($venda->payment_id);
+            $resposta = $mpService->estornarOrdem($venda->payment_id, $venda->barber);
+
+            if (($resposta['error'] ?? null) === 'credentials_not_configured') {
+                return back()->with('error', 'Credenciais do Mercado Pago não configuradas para este barbeiro.');
+            }
 
             if (isset($resposta['error']) && $resposta['status'] != 400) {
                 return back()->with('error', 'Erro ao estornar no Mercado Pago: ' . ($resposta['message'] ?? 'Erro desconhecido'));

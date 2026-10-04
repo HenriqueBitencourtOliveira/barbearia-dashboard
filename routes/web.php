@@ -44,17 +44,18 @@ Route::middleware('auth')->group(function () {
     // Planos
     Route::resource('planos', PlanoController::class)->only([
         'index',
-        'create',
-        'store'
+        'store',
+        'update'
     ]);
 
     // Clientes
     Route::resource('clientes', ClienteController::class)->only([
         'index',
-        'create',
         'store',
         'update'
     ]);
+    Route::post('/clientes/{cliente}/cortes', [ClienteController::class, 'registrarCorte'])
+        ->name('clientes.cortes.store');
 
     Route::resource('expenses', ExpenseController::class)->only([
         'index',

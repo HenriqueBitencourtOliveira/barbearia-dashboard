@@ -339,19 +339,9 @@ return [
             'icon' => 'fas fa-users',
         ],
         [
-            'text' => 'Novo cliente',
-            'url'  => '/clientes/create',
-            'icon' => 'fas fa-user-plus',
-        ],
-        [
             'text' => 'Planos',
             'url'  => '/planos',
             'icon' => 'fas fa-star',
-        ],
-        [
-            'text' => 'Novo plano',
-            'url'  => '/planos/create',
-            'icon' => 'fas fa-plus-circle',
         ],
        
     ],

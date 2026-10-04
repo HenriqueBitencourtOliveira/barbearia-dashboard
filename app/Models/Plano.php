@@ -12,7 +12,13 @@ class Plano extends Model
         'description',
         'price',
         'duration_in_days',
+        'cuts_included',
         'is_active',
+    ];
+
+    protected $casts = [
+        'cuts_included' => 'integer',
+        'is_active' => 'boolean',
     ];
 
     public function clientes(): HasMany

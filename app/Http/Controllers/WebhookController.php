@@ -20,22 +20,20 @@ class WebhookController extends Controller
             return response()->json(['status' => 'bad_request'], 400);
         }
 
-        // 2. Consulta a API para pegar os dados frescos
-        $ordem = $mpService->consultarOrdem($idOrdem);
-
-        // Se a API não devolver os dados certos, barra aqui
-        if (empty($ordem['external_reference']) || empty($ordem['status'])) {
-            Log::error("Webhook MP: Ordem {$idOrdem} retornou dados incompletos da API.", ['ordem' => $ordem]);
-            return response()->json(['status' => 'ok'], 200); // Retorna 200 pro MP não ficar tentando reenviar
-        }
-
-        // 3. Busca a venda correspondente no banco
-        $venda = Venda::where('external_reference', $ordem['external_reference'])->first();
+        // 2. A venda identifica qual conta Mercado Pago deve consultar a ordem
+        $venda = Venda::where('payment_id', $idOrdem)->first();
 
         // Se não achar a venda, avisa no log e encerra
         if (!$venda) {
-            Log::error("Webhook MP: Venda não encontrada para a referência: {$ordem['external_reference']}");
+            Log::error("Webhook MP: Venda não encontrada para a ordem {$idOrdem}.");
             return response()->json(['status' => 'ok'], 200); 
+        }
+
+        $ordem = $mpService->consultarOrdem($idOrdem, $venda->barber);
+
+        if (empty($ordem['external_reference']) || empty($ordem['status'])) {
+            Log::error("Webhook MP: Ordem {$idOrdem} retornou dados incompletos da API.", ['ordem' => $ordem]);
+            return response()->json(['status' => 'ok'], 200);
         }
 
         // 4. Mapeia e atualiza os status chamando a função privada abaixo

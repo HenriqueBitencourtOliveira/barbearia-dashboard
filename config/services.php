@@ -35,9 +35,21 @@ return [
         ],
     ],
 
-     'mercado_pago' => [
-        'token' => env('MERCADO_PAGO_TOKEN'),
-        'point_id' => env('MERCADO_PAGO_POINT_ID'),
+    'mercado_pago' => [
+        'barbers' => [
+            'Fellipe' => [
+                'token' => env('MERCADO_PAGO_FELLIPE_TOKEN'),
+                'point_id' => env('MERCADO_PAGO_FELLIPE_POINT_ID'),
+            ],
+            'Jhon' => [
+                'token' => env('MERCADO_PAGO_JHON_TOKEN'),
+                'point_id' => env('MERCADO_PAGO_JHON_POINT_ID'),
+            ],
+            'Careca' => [
+                'token' => env('MERCADO_PAGO_CARECA_TOKEN'),
+                'point_id' => env('MERCADO_PAGO_CARECA_POINT_ID'),
+            ],
+        ],
     ],
 
 ];

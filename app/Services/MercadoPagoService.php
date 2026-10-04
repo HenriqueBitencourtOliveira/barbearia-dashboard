@@ -6,20 +6,28 @@ use Illuminate\Support\Facades\Http;
 
 class MercadoPagoService
 {
-    protected $token;
-    protected $pointId;
-
-    public function __construct()
+    private function credentialsForBarber(string $barber): ?array
     {
-        $this->token = config('services.mercado_pago.token');
-        $this->pointId = config('services.mercado_pago.point_id');
+        $credentials = config("services.mercado_pago.barbers.{$barber}");
+
+        if (empty($credentials['token']) || empty($credentials['point_id'])) {
+            return null;
+        }
+
+        return $credentials;
     }
 
-    public function criarPagamento(array $dadosVenda)
+    public function criarPagamento(array $dadosVenda, string $barber)
     {
+        $credentials = $this->credentialsForBarber($barber);
+
+        if (!$credentials) {
+            return ['error' => 'credentials_not_configured'];
+        }
+
         /** @var \Illuminate\Http\Client\Response $response */
 
-        $response = Http::withToken($this->token)
+        $response = Http::withToken($credentials['token'])
             ->withHeaders([
                 'X-Idempotency-Key' => $dadosVenda['external_reference'] // <-- Chave de segurança adicionada aqui!
             ])
@@ -36,7 +44,7 @@ class MercadoPagoService
                 ],
                 'config' => [
                     'point' => [
-                        'terminal_id' => $this->pointId,
+                        'terminal_id' => $credentials['point_id'],
                     ]
                 ]
             ]);
@@ -44,21 +52,32 @@ class MercadoPagoService
         return $response->json();
     }
 
-    public function consultarOrdem($id)
+    public function consultarOrdem($id, string $barber)
     {
+        $credentials = $this->credentialsForBarber($barber);
+
+        if (!$credentials) {
+            return ['error' => 'credentials_not_configured'];
+        }
 
         /** @var \Illuminate\Http\Client\Response $response */
 
-        $response = Http::withToken($this->token)
+        $response = Http::withToken($credentials['token'])
             ->get("https://api.mercadopago.com/v1/orders/{$id}");
 
         return $response->json();
     }
 
-    public function estornarOrdem($paymentId)
+    public function estornarOrdem($paymentId, string $barber)
     {
+        $credentials = $this->credentialsForBarber($barber);
+
+        if (!$credentials) {
+            return ['error' => 'credentials_not_configured'];
+        }
+
         /** @var \Illuminate\Http\Client\Response $response */
-        $response = Http::withToken($this->token)
+        $response = Http::withToken($credentials['token'])
             ->withHeaders([
                 // Usamos uniqid() para garantir que a chave nunca se repita
                 'X-Idempotency-Key' => uniqid()
