@@ -41,6 +41,8 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/vendas/{id}/estornar', [VendaController::class, 'estornar'])->name('vendas.estornar');
 
+    Route::post('/vendas/{id}/sincronizar', [VendaController::class, 'sincronizarStatus'])->name('vendas.sincronizar');
+
     // Planos
     Route::resource('planos', PlanoController::class)->only([
         'index',

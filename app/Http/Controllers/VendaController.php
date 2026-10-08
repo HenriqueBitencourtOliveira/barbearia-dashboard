@@ -180,4 +180,56 @@ class VendaController extends Controller
 
         return back()->with('success', 'Venda estornada com sucesso!');
     }
+
+    public function sincronizarStatus($id, MercadoPagoService $mpService)
+    {
+        $venda = Venda::findOrFail($id);
+
+        // Verifica se a venda é via Mercado Pago e se possui um ID de pagamento
+        if ($venda->payment_method !== 'mercado_pago' || !$venda->payment_id) {
+            return back()->with('error', 'Apenas vendas processadas pelo Mercado Pago podem ser sincronizadas.');
+        }
+
+        // Consulta a ordem diretamente no Mercado Pago
+        $ordem = $mpService->consultarOrdem($venda->payment_id, $venda->barber);
+
+        if (empty($ordem['status'])) {
+            Log::error("Sincronização Manual: Ordem {$venda->payment_id} retornou sem status.", ['ordem' => $ordem]);
+            return back()->with('error', 'Não foi possível obter o status da venda no Mercado Pago.');
+        }
+
+        $statusOrdem = $ordem['status'];
+        $statusAtual = $venda->status;
+        $novoStatus = $statusAtual;
+
+        // Mapeia o status do MP para o sistema
+        switch ($statusOrdem) {
+            case 'processed':
+                $novoStatus = 'completed';
+                break;
+            case 'canceled':
+            case 'failed':
+                $novoStatus = 'canceled';
+                break;
+            case 'refunded':
+                $novoStatus = 'refunded';
+                break;
+            case 'created':
+            case 'at_terminal':
+            case 'action_required':
+                // Continua pendente, não muda nada
+                break;
+            default:
+                Log::warning("Sincronização Manual: Status desconhecido ({$statusOrdem}) para a Venda {$venda->id}.");
+                break;
+        }
+
+        // Salva apenas se o status realmente mudou
+        if ($novoStatus !== $statusAtual) {
+            $venda->update(['status' => $novoStatus]);
+            return back()->with('success', "Status atualizado com sucesso de '{$statusAtual}' para '{$novoStatus}'.");
+        }
+
+        return back()->with('info', 'O status já está atualizado e não precisou de alterações.');
+    }
 }

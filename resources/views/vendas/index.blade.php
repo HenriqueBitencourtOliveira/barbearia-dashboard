@@ -80,13 +80,27 @@
                             <td class="d-flex">
                                 {{-- Botão Editar --}}
                                 @if ($sale->status !== 'refunded')
-                                    <button type="button" class="btn btn-xs btn-secondary btn-editar mr-1" data-toggle="modal"
-                                    data-target="#modal-editar-venda" data-id="{{ $sale->id }}"
-                                    data-description="{{ $sale->description }}" data-barber="{{ $sale->barber }}"
-                                    data-amount="{{ $sale->amount }}" data-payment_method="{{ $sale->payment_method }}"
-                                    data-sold_at="{{ $sale->sold_at->format('Y-m-d\TH:i') }}">
-                                    <i class="fas fa-pen"></i>
-                                </button>
+                                    <button type="button" class="btn btn-xs btn-secondary btn-editar mr-1"
+                                        data-toggle="modal" data-target="#modal-editar-venda" data-id="{{ $sale->id }}"
+                                        data-description="{{ $sale->description }}" data-barber="{{ $sale->barber }}"
+                                        data-amount="{{ $sale->amount }}"
+                                        data-payment_method="{{ $sale->payment_method }}"
+                                        data-sold_at="{{ $sale->sold_at->format('Y-m-d\TH:i') }}">
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                @endif
+
+                                {{-- Botão Sincronizar Status Mercado Pago --}}
+                                @if ($sale->payment_method === 'mercado_pago' && !in_array($sale->status, ['completed', 'canceled', 'refunded']))
+                                    <form action="{{ route('vendas.sincronizar', $sale->id) }}" method="POST"
+                                        class="d-inline-block mr-1"
+                                        onsubmit="return confirm('Deseja consultar o status atual desta venda no Mercado Pago?');">
+                                        @csrf
+                                        <button type="submit" class="btn btn-xs btn-info"
+                                            title="Atualizar status no Mercado Pago">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                    </form>
                                 @endif
 
                                 {{-- Botão Estornar (Só mostra se a venda não estiver cancelada) --}}
