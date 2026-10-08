@@ -104,7 +104,7 @@
                                 @endif
 
                                 {{-- Botão Estornar (Só mostra se a venda não estiver cancelada) --}}
-                                @if ($sale->status == 'processed' && $sale->payment_method == 'mercado_pago')
+                                @if (in_array($sale->status, ['completed', 'processed']) && $sale->payment_method == 'mercado_pago')
                                     <form action="{{ route('vendas.estornar', $sale->id) }}" method="POST"
                                         class="form-estornar d-inline-block">
                                         @csrf
