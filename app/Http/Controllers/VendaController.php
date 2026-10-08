@@ -76,6 +76,7 @@ class VendaController extends Controller
                 'items.*.name'       => 'required|string',
                 'items.*.price'      => 'required|numeric',     
                 'items.*.category'   => 'required|string',      
+                'items.*.quantity'   => 'required|integer|min:1',
             ]);
 
             $statusVenda = 'completed';
@@ -121,7 +122,7 @@ class VendaController extends Controller
                         $venda->itens()->create([ 
                             'name'       => $item['name'],
                             'unit_price' => $item['price'],
-                            'quantity'   => 1,
+                            'quantity'   => $item['quantity'],
                             'category'   => $item['category'],
                             'barber'     => $data['barber'],
                         ]);

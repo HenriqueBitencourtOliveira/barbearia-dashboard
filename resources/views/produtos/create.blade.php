@@ -87,7 +87,7 @@
                                                 <option value="Cortes">Cortes e Barba</option>
                                                 <option value="Produtos">Produtos</option>
                                                 <option value="Bebidas">Bebidas</option>
-                                                <option value="Serviços">Planos</option>
+                                                <option value="Planos">Planos</option>
                                                 <option value="Outros">Outros</option>
                                             </select>
                                         </div>

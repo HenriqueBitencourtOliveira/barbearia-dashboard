@@ -14,6 +14,11 @@
                     <h3 class="card-title"><i class="fas fa-cut fa-fw"></i> Serviços e Produtos</h3>
                 </div>
                 <div class="card-body" style="max-height: 75vh; overflow-y: auto;">
+                    <div class="form-group mb-4">
+                        <label for="quantidadeProduto">Quantidade para adicionar</label>
+                        <input type="number" id="quantidadeProduto" class="form-control" min="1" step="1"
+                            value="1" required>
+                    </div>
 
                     @if (isset($produtos) && $produtos->count() > 0)
                         @foreach ($produtos->groupBy('category') as $category => $items)
@@ -161,7 +166,8 @@
                 recoveredCart.push({
                     name: cart[key].name,
                     price: parseFloat(cart[key].price),
-                    category: cart[key].category
+                    category: cart[key].category,
+                    quantity: parseInt(cart[key].quantity, 10) || 1
                 });
             }
             cart = recoveredCart;
@@ -173,11 +179,30 @@
         }
 
         function addItem(name, price, category) {
-            cart.push({
-                name,
-                price,
-                category
-            });
+            const quantityInput = document.getElementById('quantidadeProduto');
+            const quantity = Number(quantityInput.value);
+
+            if (!Number.isInteger(quantity) || quantity < 1) {
+                quantityInput.reportValidity();
+                quantityInput.focus();
+                return;
+            }
+
+            const existingItem = cart.find(item =>
+                item.name === name && item.price === price && item.category === category
+            );
+
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            } else {
+                cart.push({
+                    name,
+                    price,
+                    category,
+                    quantity
+                });
+            }
+
             updateInterface();
         }
 
@@ -209,14 +234,15 @@
                 btnFinalizar.disabled = false;
 
                 cart.forEach((item, index) => {
-                    total += item.price;
+                    const itemTotal = item.price * item.quantity;
+                    total += itemTotal;
                     itemNames.push(item.name);
 
                     lista.innerHTML += `
                     <li class="list-group-item bg-secondary text-white d-flex justify-content-between align-items-center border-bottom border-dark px-2 py-1">
                         <div>
                             <span class="d-block font-weight-bold" style="font-size: 0.9rem;">${item.name}</span>
-                            <small class="text-light">R$ ${item.price.toFixed(2).replace('.', ',')}</small>
+                            <small class="text-light">${item.quantity} x R$ ${item.price.toFixed(2).replace('.', ',')} = R$ ${itemTotal.toFixed(2).replace('.', ',')}</small>
                         </div>
                         <button type="button" class="btn btn-sm btn-danger" onclick="removeItem(${index})">
                             <i class="fas fa-trash"></i>
@@ -229,6 +255,7 @@
                     <input type="hidden" name="items[${index}][name]" value="${item.name}">
                     <input type="hidden" name="items[${index}][price]" value="${item.price}">
                     <input type="hidden" name="items[${index}][category]" value="${item.category}">
+                    <input type="hidden" name="items[${index}][quantity]" value="${item.quantity}">
                 `;
                 });
 
