@@ -63,22 +63,6 @@ class DashboardController extends Controller
             $arraySales[$sale->mes - 1] += $sale->total;
         }
 
-        // 2. Soma das Assinaturas de Planos (Clientes ativos)
-        $queryClientes = Cliente::join('planos', 'clientes.plano_id', '=', 'planos.id')
-            ->selectRaw('MONTH(clientes.created_at) as mes, SUM(planos.price) as total')
-            ->whereYear('clientes.created_at', $year)
-            ->where('clientes.status', 'active');
-
-        if ($barber) {
-            $queryClientes->where('clientes.barber', $barber);
-        }
-
-        $dataClientes = $queryClientes->groupBy('mes')->orderBy('mes')->get();
-
-        foreach ($dataClientes as $clienteSale) {
-            $arraySales[$clienteSale->mes - 1] += (float) $clienteSale->total;
-        }
-
         return $arraySales;
     }
 
@@ -113,19 +97,7 @@ class DashboardController extends Controller
 
             $somaVendas = $queryVendas->sum('amount');
 
-            // 2. Soma Planos Ativos
-            $queryClientes = Cliente::join('planos', 'clientes.plano_id', '=', 'planos.id')
-                ->whereDate('clientes.created_at', $data->toDateString())
-                ->where('clientes.status', 'active');
-
-            if ($barberSelect) {
-                $queryClientes->where('clientes.barber', $barberSelect);
-            }
-
-            $somaPlanos = $queryClientes->sum('planos.price');
-
-            // Soma ambos para o dia
-            $vendasTotais[] = $somaVendas + $somaPlanos;
+            $vendasTotais[] = $somaVendas;
         }
 
         return ['labels' => $labels, 'data' => $vendasTotais];
@@ -166,21 +138,7 @@ class DashboardController extends Controller
 
             $somaVendas = $queryVendas->sum('amount');
 
-            // 2. Soma Planos Ativos
-            $queryClientes = Cliente::join('planos', 'clientes.plano_id', '=', 'planos.id')
-                ->whereDate('clientes.created_at', $date->toDateString())
-                ->whereTime('clientes.created_at', '>=', $horaInicio)
-                ->whereTime('clientes.created_at', '<=', $horaFim)
-                ->where('clientes.status', 'active');
-
-            if ($barberSelect) {
-                $queryClientes->where('clientes.barber', $barberSelect);
-            }
-
-            $somaPlanos = $queryClientes->sum('planos.price');
-
-            // Soma ambos para a hora
-            $salesTotais[] = $somaVendas + $somaPlanos;
+            $salesTotais[] = $somaVendas;
         }
 
         return ['labels' => $labels, 'data' => $salesTotais];
